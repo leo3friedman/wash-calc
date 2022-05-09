@@ -5,14 +5,26 @@
     <title>Wash Calc</title>
   </head>
   <style>
+    body {
+      background-color: lightgrey;
+    }
+    ol {
+      list-style: none;
+    }
     li {
       margin-top: 16px;
-      width: 304px;
+      width: 368px;
+      padding: 8px;
+      background-color: grey;
+      border-radius: 4px;
     }
     input {
       float: right;
     }
     #reward {
+      float: right;
+    }
+    #profit {
       float: right;
     }
   </style>
@@ -23,18 +35,21 @@
         <input type="number" id="txn-amount" />
       </li>
       <li>
-        <label for="total-fee">Total Trading Fee</label>
+        <label for="total-fee">Total Daily Trading Fee (ETH)</label>
         <input type="number" id="total-fee" />
       </li>
-      <!--      <li>-->
-      <!--        <label for="transaction-gas">Gas Fee For Txn</label>-->
-      <!--        <input id="transaction-gas" />-->
-      <!--      </li>-->
+      <li>
+        <label for="eth-price">Eth Price (USD)</label>
+        <input type="number" id="eth-price" />
+      </li>
       <li>
         <label for="token-price">Token Price (USD)</label>
         <input type="number" id="token-price" />
       </li>
       <li><span>Reward (USD)</span> <span id="reward">N/A</span></li>
+      <li>
+        <span>Profit (Excluding Gas, USD)</span><span id="profit">N/A</span>
+      </li>
     </ol>
   </body>
 
@@ -42,9 +57,12 @@
     const txnAmount = document.getElementById("txn-amount");
     const totalFee = document.getElementById("total-fee");
     const tokenPrice = document.getElementById("token-price");
+    const ethPrice = document.getElementById("eth-price");
     const dailyRewards = 624902.8;
     const tradingFee = 0.005;
     const yourReward = document.getElementById("reward");
+    const profit = document.getElementById("profit");
+
     function calcReward() {
       return (
         ((txnAmount.value * tradingFee) / totalFee.value) *
@@ -52,23 +70,36 @@
         tokenPrice.value
       );
     }
+    function calcProfit() {
+      return calcReward() - txnAmount.value * tradingFee * ethPrice.value;
+    }
+
     txnAmount.addEventListener("input", function (evt) {
       yourReward.innerText = calcReward();
+      profit.innerText = calcProfit();
       localStorage.setItem("txnAmount", this.value);
     });
     totalFee.addEventListener("input", function (evt) {
       yourReward.innerText = calcReward();
+      profit.innerText = calcProfit();
       localStorage.setItem("totalFee", this.value);
     });
     tokenPrice.addEventListener("input", function (evt) {
       yourReward.innerText = calcReward();
+      profit.innerText = calcProfit();
       localStorage.setItem("tokenPrice", this.value);
+    });
+    ethPrice.addEventListener("input", function (evt) {
+      profit.innerText = calcProfit();
+      localStorage.setItem("ethPrice", this.value);
     });
     window.onload = () => {
       txnAmount.value = localStorage.getItem("txnAmount");
       totalFee.value = localStorage.getItem("totalFee");
       tokenPrice.value = localStorage.getItem("tokenPrice");
+      ethPrice.value = localStorage.getItem("ethPrice");
       yourReward.innerText = calcReward();
+      profit.innerText = calcProfit();
     };
   </script>
 </html>
