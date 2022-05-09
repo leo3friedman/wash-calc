@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wash Calc</title>
+  </head>
+  <style>
+    li {
+      margin-top: 16px;
+      width: 304px;
+    }
+    input {
+      float: right;
+    }
+    #reward {
+      float: right;
+    }
+  </style>
+  <body>
+    <ol>
+      <li>
+        <label for="txn-amount">Txn Amount (ETH)</label>
+        <input type="number" id="txn-amount" />
+      </li>
+      <li>
+        <label for="total-fee">Total Trading Fee</label>
+        <input type="number" id="total-fee" />
+      </li>
+      <!--      <li>-->
+      <!--        <label for="transaction-gas">Gas Fee For Txn</label>-->
+      <!--        <input id="transaction-gas" />-->
+      <!--      </li>-->
+      <li>
+        <label for="token-price">Token Price (USD)</label>
+        <input type="number" id="token-price" />
+      </li>
+      <li><span>Reward (USD)</span> <span id="reward">N/A</span></li>
+    </ol>
+  </body>
+
+  <script>
+    const txnAmount = document.getElementById("txn-amount");
+    const totalFee = document.getElementById("total-fee");
+    const tokenPrice = document.getElementById("token-price");
+    const dailyRewards = 624902.8;
+    const tradingFee = 0.005;
+    const yourReward = document.getElementById("reward");
+    function calcReward() {
+      return (
+        ((txnAmount.value * tradingFee) / totalFee.value) *
+        dailyRewards *
+        tokenPrice.value
+      );
+    }
+    txnAmount.addEventListener("input", function (evt) {
+      yourReward.innerText = calcReward();
+      localStorage.setItem("txnAmount", this.value);
+    });
+    totalFee.addEventListener("input", function (evt) {
+      yourReward.innerText = calcReward();
+      localStorage.setItem("totalFee", this.value);
+    });
+    tokenPrice.addEventListener("input", function (evt) {
+      yourReward.innerText = calcReward();
+      localStorage.setItem("tokenPrice", this.value);
+    });
+    window.onload = () => {
+      txnAmount.value = localStorage.getItem("txnAmount");
+      totalFee.value = localStorage.getItem("totalFee");
+      tokenPrice.value = localStorage.getItem("tokenPrice");
+      yourReward.innerText = calcReward();
+    };
+  </script>
+</html>
