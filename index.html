@@ -3,149 +3,130 @@
   <head>
     <meta charset="UTF-8" />
     <title>Wash Calc</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Source+Code+Pro"
+      rel="stylesheet"
+      type="text/css"
+    />
   </head>
   <style>
+    html {
+      height: 100%;
+    }
     body {
-      background-color: lightgrey;
-      font-family: monospace;
-      font-size: 16px;
+      font-family: "Source Code Pro", monospace;
+      font-size: 20px;
+      max-width: 600px;
+      height: 100%;
+      margin-left: auto;
+      margin-right: auto;
+      background-color: #d276a2;
+      margin-top: 0;
+    }
+    h1 {
+      margin: 0;
+      padding: 16px;
+      border-bottom: solid;
+      font-size: 32px;
+    }
+    #calculator {
+      margin-left: auto;
+      margin-right: auto;
+      height: 100%;
+      background-color: #fffaf0;
+      border: solid 4px;
+      margin-top: 64px;
+      position: fixed;
+    }
+    #coin-prices {
+      border-bottom: solid;
+      padding: 16px;
+    }
+
+    .coin-price {
+      display: block;
+    }
+    #token-price {
+      margin-top: 8px;
+    }
+    #input-field {
+      padding: 16px;
+      border-bottom: solid;
+    }
+    input {
+      margin-left: 8px;
+    }
+    #rewards {
+      padding: 16px;
     }
     ol {
       list-style: none;
-    }
-    li {
-      margin-top: 16px;
-      width: 464px;
-      padding: 12px;
-      background-color: grey;
-      border-radius: 4px;
-    }
-    input {
-      float: right;
-    }
-    #reward {
-      float: right;
-    }
-    #profit-per-transaction {
-      float: right;
-    }
-    #total-profit {
-      float: right;
+      margin: 0;
+      padding: 0;
     }
   </style>
   <body>
-    <ol>
+    <div id="calculator">
       <h1>X2Y2 Token Washing Calculator</h1>
-      <li>
-        <label for="txn-amount">Total Wash Amount (ETH)</label>
-        <input type="number" id="wash-amount" />
-      </li>
-      <li>
-        <label for="txn-amount">Txn Amount (ETH)</label>
-        <input type="number" id="txn-amount" step=".1" />
-      </li>
-      <li>
-        <label for="total-fee">Total Daily Trading Fee (ETH)</label>
-        <input type="number" id="total-fee" step=".1" />
-      </li>
-      <li>
-        <label for="eth-price">Eth Price (USD)</label>
-        <input type="number" id="eth-price" step="1" />
-      </li>
-      <li>
-        <label for="token-price">Token Price (USD)</label>
-        <input type="number" id="token-price" step=".01" />
-      </li>
-      <li>
-        <label for="gas-per-transaction">Gas Per Transaction (USD)</label>
-        <input type="number" id="gas-per-transaction" step=".1" />
-      </li>
-      <li>
-        <span>Reward Per Transaction (USD)</span> <span id="reward">N/A</span>
-      </li>
-      <li>
-        <span>Profit Per Transaction (USD)</span>
-        <span id="profit-per-transaction">N/A</span>
-      </li>
-      <li>
-        <span>Total Profit (USD)</span>
-        <span id="total-profit">N/A</span>
-      </li>
-    </ol>
+      <div id="coin-prices">
+        <div class="coin-price">
+          Ether Price (USD):
+          <a
+            id="eth-price"
+            href="https://www.coingecko.com/en/coins/ethereum"
+            target="_blank"
+            >ERR</a
+          >
+        </div>
+        <div class="coin-price">
+          x2y2 Price (USD):
+          <a
+            id="token-price"
+            href="https://www.coingecko.com/en/coins/x2y2"
+            target="_blank"
+            >ERR</a
+          >
+        </div>
+      </div>
+      <div id="input-field">
+        <table>
+          <tr>
+            <td>Total Washed (ETH)</td>
+            <td><input type="number" id="total-washed" step=".1" min="0" /></td>
+          </tr>
+          <tr>
+            <td>Total Daily Trading Fee (ETH)</td>
+            <td>
+              <input
+                type="number"
+                id="total-daily-trading-fee"
+                step=".1"
+                min=".1"
+              />
+            </td>
+          </tr>
+          <tr>
+            <td>Transaction Size (ETH)</td>
+            <td>
+              <input type="number" id="transaction-size" step=".1" min=".1" />
+            </td>
+          </tr>
+          <tr>
+            <td>Gas Fee Per Transaction (USD)</td>
+            <td>
+              <input type="number" id="gas-per-transaction" step=".1" min="0" />
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div id="rewards">
+        <ol>
+          <li>Total Profit: $<span id="total-profit">ERR</span></li>
+        </ol>
+      </div>
+    </div>
   </body>
 
-  <script>
-    const washAmount = document.getElementById("wash-amount");
-    const txnAmount = document.getElementById("txn-amount");
-    const totalFee = document.getElementById("total-fee");
-    const tokenPrice = document.getElementById("token-price");
-    const ethPrice = document.getElementById("eth-price");
-    const gasPerTxn = document.getElementById("gas-per-transaction");
-    const dailyRewards = 624902.8;
-    const tradingFee = 0.005;
-    const yourReward = document.getElementById("reward");
-    const profitPerTxn = document.getElementById("profit-per-transaction");
-    const totalProfit = document.getElementById("total-profit");
-
-    function calcNumTxns() {
-      return Math.ceil(washAmount.value / (txnAmount.value * tradingFee));
-    }
-
-    function calcReward() {
-      return (
-        ((txnAmount.value * tradingFee) / totalFee.value) *
-        dailyRewards *
-        tokenPrice.value
-      ).toFixed(2);
-    }
-
-    function calcProfit() {
-      return (
-        calcReward() -
-        txnAmount.value * tradingFee * ethPrice.value -
-        gasPerTxn.value
-      ).toFixed(2);
-    }
-
-    function updateProfitText() {
-      yourReward.innerText = calcReward();
-      profitPerTxn.innerText = calcProfit();
-      totalProfit.innerText = calcProfit() * calcNumTxns() + "";
-    }
-
-    txnAmount.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("txnAmount", this.value);
-    });
-    totalFee.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("totalFee", this.value);
-    });
-    tokenPrice.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("tokenPrice", this.value);
-    });
-    ethPrice.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("ethPrice", this.value);
-    });
-    gasPerTxn.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("gasPerTxn", this.value);
-    });
-    washAmount.addEventListener("input", function (evt) {
-      updateProfitText();
-      localStorage.setItem("washAmount", this.value);
-    });
-
-    window.onload = () => {
-      washAmount.value = localStorage.getItem("washAmount");
-      txnAmount.value = localStorage.getItem("txnAmount");
-      totalFee.value = localStorage.getItem("totalFee");
-      tokenPrice.value = localStorage.getItem("tokenPrice");
-      ethPrice.value = localStorage.getItem("ethPrice");
-      gasPerTxn.value = localStorage.getItem("gasPerTxn");
-      updateProfitText();
-    };
-  </script>
+  <script src="main.js"></script>
+  <script></script>
 </html>
